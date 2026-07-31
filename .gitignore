@@ -42,3 +42,4 @@ kubeconfig
 
 # Logs
 *.log
+dev-platform/apps/web/.next/
