@@ -6,7 +6,7 @@ COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -o /server ./cmd/server
 
 FROM alpine:3.21
-RUN apk --no-cache add ca-certificates docker-cli curl git nodejs npm
+RUN apk --no-cache upgrade && apk --no-cache add ca-certificates docker-cli curl git nodejs npm
 COPY --from=builder /server /server
 EXPOSE 8080
 ENTRYPOINT ["/server"]
