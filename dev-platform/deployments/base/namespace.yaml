@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: devplatform
+  labels:
+    app: devplatform
+    environment: production
