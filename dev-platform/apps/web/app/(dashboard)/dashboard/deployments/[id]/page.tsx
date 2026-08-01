@@ -107,6 +107,12 @@ export default function DeploymentDetailPage() {
     }
   }, [logs]);
 
+  const deployedUrl = deployment?.domain
+    ? /^https?:\/\//.test(deployment.domain)
+      ? deployment.domain
+      : `https://${deployment.domain}`
+    : null;
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -137,17 +143,17 @@ export default function DeploymentDetailPage() {
         </div>
       </div>
 
-      {deployment?.domain && (
+      {deployedUrl && (
         <div className="rounded-xl border border-border bg-card p-4 flex items-center justify-between">
           <div>
             <p className="text-sm text-muted-foreground">Deployed URL</p>
             <a
-              href={`http://${deployment.domain}`}
+              href={deployedUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="text-primary font-medium hover:underline"
             >
-              http://{deployment.domain}
+              {deployedUrl}
             </a>
           </div>
           <span className={`text-xs px-2 py-1 rounded-full ${status === 'success' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-yellow-500/10 text-yellow-500'}`}>

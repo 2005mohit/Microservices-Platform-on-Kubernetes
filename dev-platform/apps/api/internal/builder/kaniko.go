@@ -57,7 +57,7 @@ COPY --from=build /app/package*.json ./
 RUN npm ci --omit=dev || npm install --omit=dev
 COPY --from=build /app ./
 EXPOSE 3000
-CMD ["sh", "-c", "npm start || npm run start || npx --yes serve -s . -l 3000"]
+CMD ["sh", "-c", "npm start || npm run start || (d=$(ls -d dist build public 2>/dev/null | head -1); d=${d:-.}; npx --yes serve -s \"$d\" -l 3000)"]
 DOCKERFILE
 elif [ "$STRATEGY" = "static" ]; then
 cat > /workspace/Dockerfile <<'DOCKERFILE'
