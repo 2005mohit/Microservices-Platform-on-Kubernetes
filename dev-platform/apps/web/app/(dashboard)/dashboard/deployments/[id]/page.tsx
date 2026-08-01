@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+const API_BASE = '';
 
 const STATUS_COLORS: Record<string, string> = {
   queued: 'bg-yellow-500',
@@ -63,9 +63,8 @@ export default function DeploymentDetailPage() {
     let reconnectTimer: NodeJS.Timeout;
 
     function connect() {
-      const wsProtocol = API_BASE.startsWith('https') ? 'wss:' : 'ws:';
-      const wsHost = API_BASE.replace(/^https?:\/\//, '');
-      ws = new WebSocket(`${wsProtocol}//${wsHost}/ws/deployments/${id}`);
+      const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      ws = new WebSocket(`${wsProtocol}//${window.location.host}/ws/deployments/${id}`);
 
       ws.onmessage = (event) => {
         try {
