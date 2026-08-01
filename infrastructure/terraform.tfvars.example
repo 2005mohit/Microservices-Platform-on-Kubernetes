@@ -1,0 +1,16 @@
+# Copy this file to terraform.tfvars, fill in the real password, then run:
+#   terraform init && terraform plan && terraform apply
+# terraform.tfvars is gitignored - never commit real passwords.
+
+region             = "us-east-1"
+cluster_name       = "devplatform"
+eks_version        = "1.35"
+node_instance_type = "t3.small"
+node_desired_size  = 3
+node_min_size      = 3
+node_max_size      = 6
+
+db_name           = "devplatform"
+db_username       = "devplatform"
+db_password       = "REPLACE_WITH_A_STRONG_PASSWORD"
+db_instance_class = "db.t4g.micro"

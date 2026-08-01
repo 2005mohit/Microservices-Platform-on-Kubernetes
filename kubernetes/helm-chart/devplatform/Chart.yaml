@@ -1,0 +1,6 @@
+apiVersion: v2
+name: devplatform
+description: DevPlatform - microservices platform (Go API + Next.js web + Redis)
+type: application
+version: 0.1.0
+appVersion: "1.0.0"

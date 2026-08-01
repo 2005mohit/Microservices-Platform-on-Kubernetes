@@ -5,11 +5,20 @@ namespace: devplatform
 
 resources:
   - base/namespace.yaml
-  - base/postgres.yaml
   - base/redis.yaml
   - base/backend.yaml
+  - base/web.yaml
   - base/ingress.yaml
+
+secretGenerator:
+  - name: db-credentials
+    envs:
+      - .db.env
 
 images:
   - name: devplatform/api
+    newName: ghcr.io/2005mohit/devplatform-api
+    newTag: latest
+  - name: devplatform/web
+    newName: ghcr.io/2005mohit/devplatform-web
     newTag: latest

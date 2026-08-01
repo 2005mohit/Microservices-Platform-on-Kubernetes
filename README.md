@@ -2,57 +2,82 @@
 
 A self-hosted Vercel/Netlify alternative for internal teams. Deploy apps from Git repositories onto Kubernetes with one click.
 
+**Live:** [https://35.175.60.72.sslip.io](https://35.175.60.72.sslip.io)
+
 ## Architecture
 
 ```
-┌─────────────────┐     ┌──────────────────┐     ┌──────────────┐
-│  Next.js UI     │────▶│  Go API Server   │────▶│  Kubernetes  │
-│  (Dashboard)    │◀────│  (Control Plane) │◀────│  (Deployments)│
-└─────────────────┘     └───────┬──────────┘     └──────────────┘
-                                │
-                     ┌──────────┴──────────┐
-                     │  PostgreSQL / Redis  │
-                     └─────────────────────┘
+                              ┌─────────────────────────────┐
+                              │         Amazon EKS          │
+                              │                             │
+   ┌───────────┐   /api   ┌──────────┐   git/k8s   ┌──────────────┐
+   │  Next.js  │─────────▶│  Go API  │────────────▶│  Deployments │
+   │ Dashboard │◀─────────│ Server   │◀────────────│  (K8s)       │
+   └───────────┘  HTTPS   └────┬─────┘             └──────────────┘
+          NGINX Ingress ──────▶│
+     cert-manager (Let's Encrypt)
+                              │
+                     ┌────────┴────────┐
+                     │  RDS PostgreSQL │    │  Redis
+                     │  (ElastiCache)  │    │  (ElastiCache)
+                     └─────────────────┘    └──────────
 ```
 
 ## Repository Layout
+
 ```
-dev-platform/
-  apps/api/           — Go control-plane API server
-  apps/web/           — Next.js dashboard UI
-  deployments/        — Kubernetes manifests (kustomize)
+.
+├── dev-platform/
+│   ├── apps/
+│   │   ├── api/            # Go control-plane API server
+│   │   └── web/            # Next.js dashboard UI
+│   └── deployments/        # Kubernetes manifests (kustomize, local dev)
+├── kubernetes/
+│   ├── helm-chart/devplatform/  # Helm chart deployed to EKS
+│   ├── argocd/                  # ArgoCD Application (GitOps)
+│   ├── cert-manager/            # ClusterIssuer (Let's Encrypt)
+│   └── hpa/                     # HorizontalPodAutoscaler manifests
+├── infrastructure/         # Terraform: EKS + RDS + networking
+└── .github/workflows/      # CI/CD pipeline
 ```
 
-## Quick Start
+## CI/CD Pipeline (GitOps)
 
-### Prerequisites
-- Go 1.22+
-- Node.js 18+
-- Docker & Docker Compose
-- Kubernetes cluster (kind/minikube for local)
-- kubectl
+On every push to `main`, GitHub Actions:
 
-### 1. Start Infrastructure
+1. **Test** — `go vet` + build for the API; `npm lint` + `next build` for the web.
+2. **Build & Scan** — builds both images (with layer caching), scans them with Trivy (fails on HIGH/CRITICAL), and pushes to GHCR as `:latest` and `:<commit-sha>`.
+3. **GitOps** — bumps the image tag in `kubernetes/helm-chart/devplatform/values.yaml` and commits it with `[skip ci]`.
+4. **Deploy** — ArgoCD watches the repo and auto-syncs the new tag onto the cluster.
+
+### Register the ArgoCD app once
+
 ```bash
-cd dev-platform/apps/api
-docker-compose up -d
+kubectl apply -f kubernetes/argocd/application.yaml
 ```
 
-### 2. Start Backend
+ArgoCD needs read access to the repo — either keep it public or add credentials
+via `argocd repo add https://github.com/2005mohit/Microservices-Platform-on-Kubernetes` with a PAT.
+
+## Infrastructure (Terraform)
+
+Terraform provisions the EKS cluster (v1.35), managed node group, RDS PostgreSQL,
+Redis, VPC, and IAM roles. Secrets (`terraform.tfvars`, `deployments/.db.env`)
+are gitignored — supply your own.
+
 ```bash
-cd dev-platform/apps/api
-make dev
+cd infrastructure
+terraform init
+terraform apply
 ```
 
-### 3. Start Frontend
+Then install the platform components:
+
 ```bash
-cd dev-platform/apps/web
-npm install
-npm run dev
+kubectl apply -f kubernetes/cert-manager/cluster-issuer.yaml
+helm upgrade --install devplatform kubernetes/helm-chart/devplatform
+kubectl apply -f kubernetes/hpa/
 ```
-
-### 4. Open Dashboard
-Navigate to [http://localhost:3000](http://localhost:3000)
 
 ## API Endpoints
 
@@ -67,11 +92,13 @@ Navigate to [http://localhost:3000](http://localhost:3000)
 | GET | /api/v1/projects/:id/deployments | List deployments |
 | WS | /ws/deployments/:id | Stream deployment logs |
 
-## Deploy to Kubernetes
+## Local Development
 
 ```bash
-kubectl apply -k dev-platform/deployments/
+cd dev-platform/apps/api && make dev      # Go API
+cd dev-platform/apps/web && npm run dev   # Next.js UI
 ```
 
 ## License
+
 MIT

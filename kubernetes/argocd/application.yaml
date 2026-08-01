@@ -1,0 +1,25 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: devplatform
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/2005mohit/Microservices-Platform-on-Kubernetes.git
+    targetRevision: main
+    path: kubernetes/helm-chart/devplatform
+    helm:
+      releaseName: devplatform
+      valueFiles:
+        - values.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: devplatform
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

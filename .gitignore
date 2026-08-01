@@ -34,11 +34,17 @@ docker-compose.override.yml
 crash.log
 override.tf
 override.tf.json
+*.tfplan
+infrastructure/.terraform/
+infrastructure/terraform.tfvars
+infrastructure/*.tfvars
+infrastructure/*.tfvars.json
 
 # Kubernetes
 .kube/
 kubeconfig
 *.kubeconfig
+dev-platform/deployments/.db.env
 
 # Logs
 *.log

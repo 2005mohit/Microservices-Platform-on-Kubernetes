@@ -1,0 +1,49 @@
+namespace: devplatform
+
+replicas:
+  api: 1
+  web: 1
+  redis: 1
+
+image:
+  repository: ghcr.io/2005mohit
+  tag: latest
+  pullPolicy: IfNotPresent
+
+serviceAccount: devplatform-sa
+
+dbSecret: db-credentials
+
+api:
+  port: 8080
+  env:
+    REDIS_ADDR: redis:6379
+    BASE_DOMAIN: example.com
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 300m
+      memory: 384Mi
+
+web:
+  port: 3000
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 400m
+      memory: 400Mi
+
+redis:
+  image: redis:7-alpine
+
+ingress:
+  enabled: true
+  className: nginx
+  host: 35.175.60.72.sslip.io
+  tls:
+    enabled: true
+    secretName: devplatform-tls
