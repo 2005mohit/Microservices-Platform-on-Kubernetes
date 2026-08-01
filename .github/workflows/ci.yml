@@ -99,6 +99,10 @@ jobs:
         with:
           context: dev-platform/apps/${{ matrix.service }}
           push: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            NEXT_PUBLIC_API_URL=/api
           tags: |
             ghcr.io/${{ github.repository_owner }}/devplatform-${{ matrix.service }}:latest
             ghcr.io/${{ github.repository_owner }}/devplatform-${{ matrix.service }}:${{ github.sha }}
