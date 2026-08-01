@@ -10,6 +10,7 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	networkingv1 "k8s.io/api/networking/v1"
+	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
@@ -93,8 +94,18 @@ func DeployUserApp(name, hostname, image string, port int32) error {
 			},
 		},
 	}
-	if _, err := Client.AppsV1().Deployments(ns).Create(ctx, deployment, metav1.CreateOptions{}); err != nil && !isAlreadyExists(err) {
-		return fmt.Errorf("deployment: %w", err)
+	cur, err := Client.AppsV1().Deployments(ns).Get(ctx, "app", metav1.GetOptions{})
+	if k8serrors.IsNotFound(err) {
+		if _, err := Client.AppsV1().Deployments(ns).Create(ctx, deployment, metav1.CreateOptions{}); err != nil {
+			return fmt.Errorf("deployment: %w", err)
+		}
+	} else if err != nil {
+		return fmt.Errorf("deployment get: %w", err)
+	} else {
+		cur.Spec.Template.Spec.Containers[0].Image = image
+		if _, err := Client.AppsV1().Deployments(ns).Update(ctx, cur, metav1.UpdateOptions{}); err != nil {
+			return fmt.Errorf("deployment update: %w", err)
+		}
 	}
 
 	svc := &corev1.Service{
