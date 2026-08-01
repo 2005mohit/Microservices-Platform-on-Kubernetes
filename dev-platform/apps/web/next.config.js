@@ -21,7 +21,7 @@ const nextConfig = {
       },
       {
         source: '/ws/:path*',
-        destination: `${process.env.NEXT_PUBLIC_WS_URL || 'ws://api:8080'}/ws/:path*`,
+        destination: `${process.env.NEXT_PUBLIC_WS_URL || 'http://api:8080'}/ws/:path*`,
       },
     ];
   },
