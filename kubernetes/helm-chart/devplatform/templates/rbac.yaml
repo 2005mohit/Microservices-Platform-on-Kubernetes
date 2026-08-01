@@ -4,7 +4,7 @@ metadata:
   name: devplatform-manager
 rules:
   - apiGroups: [""]
-    resources: ["namespaces", "pods", "services", "configmaps", "resourcequotas", "limitranges"]
+    resources: ["namespaces", "pods", "pods/log", "services", "configmaps", "secrets", "resourcequotas", "limitranges"]
     verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
   - apiGroups: ["apps"]
     resources: ["deployments"]

@@ -28,6 +28,13 @@ spec:
               value: {{ .Values.api.env.REDIS_ADDR }}
             - name: BASE_DOMAIN
               value: {{ .Values.api.env.BASE_DOMAIN }}
+            - name: REGISTRY
+              value: {{ .Values.api.env.REGISTRY }}
+            - name: GITHUB_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.gitSecret }}
+                  key: GITHUB_TOKEN
             - name: PORT
               value: "{{ .Values.api.port }}"
           resources:

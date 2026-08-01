@@ -13,12 +13,14 @@ image:
 serviceAccount: devplatform-sa
 
 dbSecret: db-credentials
+gitSecret: github-pat
 
 api:
   port: 8080
   env:
     REDIS_ADDR: redis:6379
-    BASE_DOMAIN: example.com
+    BASE_DOMAIN: 35.175.60.72.sslip.io
+    REGISTRY: ghcr.io/2005mohit
   resources:
     requests:
       cpu: 100m
