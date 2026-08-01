@@ -7,7 +7,7 @@ replicas:
 
 image:
   repository: ghcr.io/2005mohit
-  tag: dec7656
+  tag: 3af6682
   pullPolicy: IfNotPresent
 
 serviceAccount: devplatform-sa
