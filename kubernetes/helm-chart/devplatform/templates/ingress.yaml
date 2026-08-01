@@ -12,8 +12,11 @@ spec:
   ingressClassName: {{ .Values.ingress.className }}
   {{- if .Values.ingress.tls.enabled }}
   tls:
+    {{- $hosts := prepend (default list .Values.ingress.extraHosts) (dict "host" .Values.ingress.host) }}
     - hosts:
-        - {{ .Values.ingress.host }}
+      {{- range $hosts }}
+        - {{ .host }}
+      {{- end }}
       secretName: {{ .Values.ingress.tls.secretName }}
   {{- end }}
   rules:
@@ -41,4 +44,30 @@ spec:
                 name: web
                 port:
                   number: 3000
+    {{- range .Values.ingress.extraHosts }}
+    - host: {{ .host }}
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: api
+                port:
+                  number: 8080
+          - path: /ws
+            pathType: Prefix
+            backend:
+              service:
+                name: api
+                port:
+                  number: 8080
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: web
+                port:
+                  number: 3000
+    {{- end }}
 {{- end }}

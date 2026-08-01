@@ -49,6 +49,8 @@ ingress:
   enabled: true
   className: nginx
   host: 35.175.60.72.sslip.io
+  extraHosts:
+    - host: dash.35.175.60.72.sslip.io
   tls:
     enabled: true
     secretName: devplatform-tls
