@@ -104,6 +104,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           )}
 
           <main className="flex-1 overflow-auto p-6">{children}</main>
+          <footer className="border-t border-border px-6 py-3 text-center text-xs text-muted-foreground">
+            &copy; 2026 mohit chandra fulara . All rights reserved.
+          </footer>
         </div>
       </div>
     </QueryClientProvider>
